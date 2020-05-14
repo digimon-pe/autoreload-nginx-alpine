@@ -1,0 +1,13 @@
+#!/bin/sh
+{
+  nginx "$@"
+} &
+
+while true; do
+  if [[ "$(inotifywatch -r -e modify,create,delete -t 30 /etc/nginx/ 2>&1 | grep filename)" != "" ]]; then
+    nginx -s reload
+    if [ $? -ne 0 ]; then
+      echo 'ERROR: Invalid nginx config'
+    fi
+  fi
+done
